@@ -7,59 +7,55 @@ from dataset import Dataset
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 from sklearn.model_selection import KFold
 
-class ModelSVM():
-    def __init__(self, vector_model = svm.NuSVC):
-        dataset = Dataset()
+class Model():
+    def __init__(self,
+                 model = None,
+                 variables = None,
+                 train_set = None,
+                 test_set = None,
+                 target = None
+                 ):
 
-        print(f"Model SVM - {vector_model}")
-        self.model = vector_model()
+        if(model==None):
+            self.model = svm.NuSVC()
+        else:
+            self.model = model
 
-        self.train_data = dataset.train_data
-        self.test_data = dataset.test_data
-        self.target = dataset.target
+        print(f"Model - {self.model}")
 
-        self.selected_variables = [
-            'Severity',
-            'Gender_M',
-            'City_Albuquerque',
-            'City_Santa Fe',
-            "severity_against_avg_gender",
-            'Medical_Tent_n/a',
-            "Sev_family",
-            'spending_family_member',
-            'family_size',
+        if (train_set is None):
+            dataset = Dataset()
+            self.train_data = dataset.train_data
+            self.test_data = dataset.test_data
+            self.target = dataset.target
 
-            # 'Birthday_year',
-            # 'Parents or siblings infected',
-            # 'Wife/Husband or children infected',
-            # 'Medical_Tent_A',
-            # 'Medical_Tent_B',
-            # 'Medical_Tent_C',
-            # 'Medical_Tent_D',
-            # 'Medical_Tent_E',
-            # 'Medical_Tent_F',
-            # 'Medical_Tent_G',
-            # 'Medical_Tent_T',
-            # 'Medical_Expenses_Family',
-            # 'City_Taos',
-            # 'spending_vs_severity',
-            # "severity_against_avg_city",
-            # "severity_against_avg_tent",
-            # "spending_family_severity",
+            if(variables == None):
+                self.selected_variables = self.train_data.columns
+            else:
+                self.selected_variables = variables
+
+            scaler = RobustScaler().fit(self.test_data[self.selected_variables])
+
+            self.train_data[self.selected_variables] = scaler.transform(
+                                   self.train_data[self.selected_variables])
+
+            self.test_data[self.selected_variables] = scaler.transform(
+                                    self.test_data[self.selected_variables])
+
+            self.test_data = self.test_data[self.selected_variables]
+            self.train_data = self.train_data[self.selected_variables]
+
+        else:
+            if(variables == None):
+                self.selected_variables = train_set.columns
+            else:
+                self.selected_variables = variables
+
+            self.train_data = train_set[self.selected_variables]
+            self.test_data = test_set[self.selected_variables]
+            self.target = target
 
 
-            ]
-
-        scaler = RobustScaler().fit(self.test_data[self.selected_variables])
-
-        self.train_data[self.selected_variables] = scaler.transform(
-                               self.train_data[self.selected_variables])
-
-        self.test_data[self.selected_variables] = scaler.transform(
-                                self.test_data[self.selected_variables])
-
-        self.test_data = self.test_data[self.selected_variables]
-        self.train_data = self.train_data[self.selected_variables]
 
     def run_model(self,path = None):
         self.create_kfolds()
@@ -149,6 +145,7 @@ class ModelSVM():
         print("Highest model accuracy: {:2.2%}".format(best_accuracy))
         self.model.fit(self.x_train[best_model],self.y_train[best_model])
 
+
     def predict_results(self,path = None):
         labels_val = self.model.predict(self.test_data)
         self.test_data.insert(loc=0, column='Deceased', value=labels_val)
@@ -158,6 +155,3 @@ class ModelSVM():
         else:
             print(f"Solution not saved.")
             self.test_data["Deceased"]
-
-# model = ModelSVM(vector_model = svm.NuSVC)
-# model.run_model(path="solution.csv")
