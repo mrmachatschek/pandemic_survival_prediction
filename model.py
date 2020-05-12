@@ -154,4 +154,3 @@ class Model():
             print(f"Solution set saved as '{path}'.")
         else:
             print(f"Solution not saved.")
-            self.test_data["Deceased"]

@@ -33,8 +33,8 @@ import numpy as np
 
 class Dataset():
     def __init__(self):
-        self.train_data = pd.read_csv('train.csv', index_col="Patient_ID")
-        self.test_data = pd.read_csv('test.csv', index_col="Patient_ID")
+        self.train_data = pd.read_csv('data/train.csv', index_col="Patient_ID")
+        self.test_data = pd.read_csv('data/test.csv', index_col="Patient_ID")
 
         self.train_data = Dataset.prepare_data(self.train_data)
         self.test_data = Dataset.prepare_data(self.test_data)
