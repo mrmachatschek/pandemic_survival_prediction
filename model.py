@@ -25,6 +25,7 @@ class Model():
 
         if (train_set is None):
             dataset = Dataset()
+            dataset.apply_preparation()
             self.train_data = dataset.train_data
             self.test_data = dataset.test_data
             self.target = dataset.target

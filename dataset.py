@@ -36,6 +36,7 @@ class Dataset():
         self.train_data = pd.read_csv('data/train.csv', index_col="Patient_ID")
         self.test_data = pd.read_csv('data/test.csv', index_col="Patient_ID")
 
+    def apply_preparation(self):
         self.train_data = Dataset.prepare_data(self.train_data)
         self.test_data = Dataset.prepare_data(self.test_data)
 
@@ -46,6 +47,19 @@ class Dataset():
         self.test_data['Medical_Tent_T'] = 0
         del self.train_data['Deceased']
 
+    def create_gender(self):
+        gender = {'Mr.':"M",
+                  'Ms.':"F",
+                  'Master':"M",
+                  'Miss':"F",
+                  "Mrs.":"F"}
+
+
+        self.train_data['Name'] = self.train_data['Name'].str.rsplit(' ', n=0, expand=True)
+        self.train_data['Gender'] = [gender[item] for item in self.train_data['Name']]
+
+        self.test_data['Name'] = self.test_data['Name'].str.rsplit(' ', n=0, expand=True)
+        self.test_data['Gender'] = [gender[item] for item in self.test_data['Name']]
 
     def create_features(data):
         df_encoded = data.copy()
